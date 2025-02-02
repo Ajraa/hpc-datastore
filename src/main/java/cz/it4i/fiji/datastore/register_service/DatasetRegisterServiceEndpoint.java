@@ -61,8 +61,8 @@ public class DatasetRegisterServiceEndpoint {
 	public static final String VERSION_PARAMS = "versionParams";
 	public static final String MODE_PARAM = "mode";
 	public static final String TIMEOUT_PARAM = "timeout";
-	private static final String RESOLUTION_PARAM = "resolutionParam";
-	private static final Pattern URL_RESOLUTIONS_PATTERN = Pattern.compile(
+	public static final String RESOLUTION_PARAM = "resolutionParam";
+	public static final Pattern URL_RESOLUTIONS_PATTERN = Pattern.compile(
 		"(\\p{Digit}+)/(\\p{Digit}+)/(\\p{Digit}+)");
 
 	@Inject
@@ -137,7 +137,7 @@ public class DatasetRegisterServiceEndpoint {
 		@PathParam(RESOLUTION_PARAM) String resolutionString,
 		@QueryParam(TIMEOUT_PARAM) Long timeout)
 	{
-		log.info("starting2 server for writing dataset=" + uuid);
+		log.info("starting server for writing dataset=" + uuid);
 		List<int[]> resolutions = getResolutions(rX, rY, rZ, resolutionString);
 		try {
 			URI serverURI = datasetRegisterServiceImpl.start(uuid, resolutions,
@@ -361,7 +361,7 @@ public class DatasetRegisterServiceEndpoint {
 		return Response.status(Status.NOT_IMPLEMENTED).build();
 	}
 
-	public List<int[]> getResolutions(int rX, int rY, int rZ,
+	public static List<int[]> getResolutions(int rX, int rY, int rZ,
 		String resolutionString)
 	{
 		List<int[]> resolutions = new LinkedList<>();

@@ -86,20 +86,10 @@
 
     <repositories>
         <repository>
-            <id>it4i</id>
-            <url>https://artifactory.cs.vsb.cz/it4i/</url>
-        </repository>
-        <repository>
             <id>scijava.public</id>
             <url>https://maven.scijava.org/content/groups/public</url>
         </repository>
     </repositories>
-    <distributionManagement>
-        <repository>
-            <id>it4i</id>
-            <url>https://artifactory.cs.vsb.cz/it4i/</url>
-        </repository>
-    </distributionManagement>
     <profiles>
 
         <profile>
@@ -141,6 +131,11 @@
             <artifactId>lombok</artifactId>
             <version>1.18.20</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-graphql</artifactId>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.janelia.saalfeldlab/n5 -->
