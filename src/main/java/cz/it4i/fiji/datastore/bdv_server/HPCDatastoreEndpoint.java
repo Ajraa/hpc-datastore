@@ -7,6 +7,7 @@
  ******************************************************************************/
 package cz.it4i.fiji.datastore.bdv_server;
 
+import static cz.it4i.fiji.datastore.bdv_server.HPCDatastoreHelper.getThumbnailProvider;
 import static cz.it4i.fiji.datastore.register_service.DatasetRegisterServiceEndpoint.UUID;
 import static cz.it4i.fiji.datastore.register_service.DatasetRegisterServiceEndpoint.VERSION_PARAM;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
@@ -92,7 +93,7 @@ public class HPCDatastoreEndpoint {
 		@PathParam(VERSION_PARAM) String version,
 		@Context HttpServletResponse response) throws IOException
 	{
-		ThumbnailProviderTS ts = getThumbnailProvider(uuid, version);
+		ThumbnailProviderTS ts = getThumbnailProvider(uuid, version, thumbnailsGenerators, getSpimDataMinimalTS);
 		ts.runForThumbnail(response);
 	}
 
@@ -103,37 +104,5 @@ public class HPCDatastoreEndpoint {
 	{
 		return Response.status(Status.NOT_FOUND).entity("settings.xml").build();
 	}
-
-	private ThumbnailProviderTS getThumbnailProvider(String uuid,
-		String version)
-	{
-		String key = getKey(uuid, version);
-		return thumbnailsGenerators.computeIfAbsent(key,
-			x -> {
-				try {
-					return constructThumbnailGeneratorTS(uuid, version);
-				}
-				catch (SpimDataException | IOException exc) {
-					throw new InternalServerErrorException(exc);
-				}
-			});
-	}
-
-	private ThumbnailProviderTS constructThumbnailGeneratorTS(String uuid,
-		String version) throws SpimDataException, IOException
-	{
-		// thumbnail is done from mixedLatest version as it requires transform
-		// setups in
-		// N5Reader and get N5Reader base on setupID
-		version = "mixedLatest";
-		SpimDataMinimal spimData = getSpimDataMinimalTS.run(uuid, version);
-		return new ThumbnailProviderTS(spimData, uuid + "_version-" + version,
-			GetThumbnailsDirectoryTS.$());
-	}
-
-	private String getKey(String uuid, String version) {
-		return uuid + ":" + version;
-	}
-
 
 }

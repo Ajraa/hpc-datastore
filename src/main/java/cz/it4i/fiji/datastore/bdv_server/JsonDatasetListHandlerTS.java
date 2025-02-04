@@ -4,6 +4,7 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -41,6 +42,13 @@ class JsonDatasetListHandlerTS
 		boolean allVersionsInOne) throws IOException
 	{
 		list(uuid, response, baseURI, allVersionsInOne);
+	}
+
+	public String run(String uuid, URI baseURI,
+					boolean allVersionsInOne) throws IOException
+	{
+		Dataset dataset = datasetRepository.findByUUID(uuid);
+		return getJsonDatasetList(dataset, baseURI, allVersionsInOne);
 	}
 
 	public void writeInfoAboutVersion(Dataset dataset, final JsonWriter writer,
@@ -97,6 +105,25 @@ class JsonDatasetListHandlerTS
 
 		}
 	}
+
+	private String getJsonDatasetList(Dataset dataset, URI baseURI, boolean allVersionsInOne) {
+	try (StringWriter stringWriter = new StringWriter();
+		 JsonWriter writer = new JsonWriter(stringWriter)) {
+
+		writer.setIndent("\t");
+		writer.beginObject();
+
+		// Simulating your JSON serialization
+		getContexts(dataset, writer, baseURI, allVersionsInOne);
+
+		writer.endObject();
+		writer.flush();
+
+		return stringWriter.toString();
+	} catch (IOException e) {
+		throw new RuntimeException("Error generating JSON", e);
+	}
+}
 
 	private String getContexts(Dataset dataset, final JsonWriter writer,
 		URI baseURI, boolean allVersionsInOne)

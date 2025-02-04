@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
@@ -47,6 +48,10 @@ public class ThumbnailProviderTS {
 		provideThumbnail(response);
 	}
 
+	public String runForThumbnail() throws IOException {
+		return Base64.getEncoder().encodeToString(provideThumbnail());
+	}
+
 	private void provideThumbnail(final HttpServletResponse response)
 		throws IOException
 	{
@@ -63,6 +68,14 @@ public class ThumbnailProviderTS {
 				}
 			}
 		}
+	}
+
+	private byte[] provideThumbnail() throws IOException {
+		Path path = Paths.get(thumbnailFilename);
+		if (Files.exists(path)) {
+			return Files.readAllBytes(path);
+		}
+		return null; // or throw an exception if preferred
 	}
 
 	/**
