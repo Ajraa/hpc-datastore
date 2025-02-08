@@ -44,7 +44,7 @@ public class TestDatastore {
 	final private long TIMEOUT = 10000l;
 	private String uuid;
 
-	/*@BeforeEach
+	@BeforeEach
 	void initUUID() {
 		if (uuid != null) {
 			return;
@@ -189,7 +189,7 @@ public class TestDatastore {
 	/**
 	 * Test reading blocks - existing, non-existing, existing
 	 */
-	/*public void readE_NE_E_Block() {
+	public void readE_NE_E_Block() {
 		// create two blocks
 		Response result = withNoFollowRedirects().get("/datasets/" + uuid +
 			"/1/1/1/new/write?timeout=" + TIMEOUT);
@@ -270,5 +270,5 @@ public class TestDatastore {
 		}
 		return data;
 	}
-	*/
+
 }
