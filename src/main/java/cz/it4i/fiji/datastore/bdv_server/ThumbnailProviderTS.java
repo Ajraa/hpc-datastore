@@ -70,6 +70,14 @@ public class ThumbnailProviderTS {
 		}
 	}
 
+	public byte[] provideThumbnailData() throws IOException {
+		final Path path = Paths.get(thumbnailFilename);
+		if (Files.exists(path)) {
+			return Files.readAllBytes(path);
+		}
+		return null;
+	}
+
 	private byte[] provideThumbnail() throws IOException {
 		Path path = Paths.get(thumbnailFilename);
 		if (Files.exists(path)) {
