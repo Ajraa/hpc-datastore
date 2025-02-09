@@ -191,20 +191,4 @@ public class DatasetServerEndpoint implements Serializable {
 		// @formatter:on
 		responseBuilder.type(MediaType.TEXT_HTML_TYPE).entity(sb.toString());
 	}
-
-	@Getter
-	@XmlRootElement
-	@Builder
-	static class RootResponse {
-
-		private final String uuid;
-
-		private final int version;
-
-		private final OperationMode mode;
-
-		private final List<int[]> resolutionLevels;
-
-		private final Long serverTimeout;
-	}
 }

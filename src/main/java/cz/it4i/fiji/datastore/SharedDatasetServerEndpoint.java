@@ -42,7 +42,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import cz.it4i.fiji.datastore.DatasetServerEndpoint.RootResponse;
 import cz.it4i.fiji.datastore.core.Version;
 import cz.it4i.fiji.datastore.register_service.OperationMode;
 import cz.it4i.fiji.datastore.security.Authorization;

@@ -4,7 +4,10 @@ public class DataReturn {
     public enum ReturnType {
         XML,
         JSON,
-        BASE64
+        BASE64,
+        SUCCESS,
+        TEXT,
+        HTML
     }
     private final ReturnType returnType;
     private final String data;

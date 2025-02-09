@@ -25,7 +25,7 @@ import cz.it4i.fiji.datastore.register_service.DatasetVersion;
  */
 @SuppressWarnings("javadoc")
 @ApplicationScoped
-class JsonDatasetListHandlerTS 
+class JsonDatasetListHandlerTS
 {
 
 	@Inject
