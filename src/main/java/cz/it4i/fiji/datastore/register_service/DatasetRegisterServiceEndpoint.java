@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -39,6 +40,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import cz.it4i.fiji.datastore.bdv_server.CellHandlerGQLProducer;
+import cz.it4i.fiji.datastore.bdv_server.CellHandlerTSProducer;
 import cz.it4i.fiji.datastore.core.DatasetDTO;
 import cz.it4i.fiji.datastore.security.Authorization;
 import lombok.extern.log4j.Log4j2;
@@ -66,7 +69,7 @@ public class DatasetRegisterServiceEndpoint {
 		"(\\p{Digit}+)/(\\p{Digit}+)/(\\p{Digit}+)");
 
 	@Inject
-	DatasetRegisterServiceImpl datasetRegisterServiceImpl;
+	DatasetRegisterServiceTSImpl datasetRegisterServiceImpl;
 
 	@Path("/hello")
 	@GET

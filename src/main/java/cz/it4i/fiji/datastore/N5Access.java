@@ -30,7 +30,7 @@ import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Writer;
 
 import bdv.img.n5.BdvN5Format;
-import cz.it4i.fiji.datastore.register_service.DatasetRegisterServiceImpl;
+import static cz.it4i.fiji.datastore.register_service.DatasetRegisterServiceImplBase.IDENTITY_RESOLUTION;
 import cz.it4i.fiji.datastore.register_service.OperationMode;
 import cz.it4i.fiji.datastore.register_service.ResolutionLevel;
 import lombok.AccessLevel;
@@ -194,7 +194,7 @@ public class N5Access {
 		if (aMode == OperationMode.WRITE_TO_OTHER_RESOLUTIONS ||
 			aMode == OperationMode.NO_ACCESS)
 		{
-			resolutionLevel = DatasetRegisterServiceImpl.IDENTITY_RESOLUTION;
+			resolutionLevel = IDENTITY_RESOLUTION;
 			downsamplingResolutionsLevels = aResolutionLevels;
 		}
 		else {
@@ -250,7 +250,7 @@ public class N5Access {
 	public DataType getType(int time, int channel, int angle)
 	{
 		String path = getViewSetupTimepoint(time, channel, angle).getPath(
-			DatasetRegisterServiceImpl.IDENTITY_RESOLUTION);
+			IDENTITY_RESOLUTION);
 		try {
 			return writer.getDatasetAttributes(path).getDataType();
 		}

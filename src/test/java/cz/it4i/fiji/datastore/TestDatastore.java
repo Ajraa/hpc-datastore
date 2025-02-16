@@ -39,13 +39,11 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 @SuppressWarnings("deprecation")
 @QuarkusTest()
 @TestInstance(Lifecycle.PER_CLASS)
-public class TestDatastore {
-
-	final private long TIMEOUT = 10000l;
-	private String uuid;
+public class TestDatastore extends DatastoreTestBase {
 
 	@BeforeEach
-	void initUUID() {
+	@Override
+	public void initUUID() {
 		if (uuid != null) {
 			return;
 		}
@@ -59,12 +57,8 @@ public class TestDatastore {
 		Quarkus.asyncExit();
 	}
 
-	@Test
-	public void createDataset() {
-		assertNotNull(uuid, "Dataset was not created");
-	}
-
-	@Test
+    @Test
+	@Override
 	public void writeReadOneBlock() {
 		Response result = withNoFollowRedirects().get("/datasets/" + uuid +
 			"/1/1/1/new/write?timeout=" + TIMEOUT);
@@ -92,6 +86,7 @@ public class TestDatastore {
 	}
 
 	@Test
+	@Override
 	public void writeReadTwoBlocks() {
 		Response result = withNoFollowRedirects().get("/datasets/" + uuid +
 			"/1/1/1/new/write?timeout=" + TIMEOUT);
@@ -120,6 +115,7 @@ public class TestDatastore {
 	}
 
 	@Test
+	@Override
 	public void mixedLatest() {
 		String baseURI = withNoFollowRedirects().get("/datasets/" + uuid +
 			"/1/1/1/new/write?timeout=" + TIMEOUT).getHeader("Location");
@@ -155,6 +151,7 @@ public class TestDatastore {
 	}
 
 	@Test
+	@Override
 	public void setGetMetadata() {
 		String testMetadata = "test metadata" + Math.random();
 		assertEquals(Status.OK.getStatusCode(), with().contentType(ContentType.TEXT)
@@ -166,6 +163,7 @@ public class TestDatastore {
 	}
 
 	@Test
+	@Override
 	public void readNonExistingBlock() {
 		Response result = with().config(RestAssuredConfig.config().redirect(
 			RedirectConfig.redirectConfig().followRedirects(false))).get(
@@ -186,6 +184,7 @@ public class TestDatastore {
 	}
 
 	@Test
+	@Override
 	/**
 	 * Test reading blocks - existing, non-existing, existing
 	 */
@@ -227,6 +226,7 @@ public class TestDatastore {
 	}
 
 	@Test
+	@Override
 	public void addChannels() {
 		RestAssuredConfig config = RestAssured.config().httpClient(HttpClientConfig
 			.httpClientConfig().setParam(CoreConnectionPNames.CONNECTION_TIMEOUT,
@@ -248,27 +248,4 @@ public class TestDatastore {
 		return with().config(RestAssuredConfig.config().redirect(RedirectConfig
 			.redirectConfig().followRedirects(false)));
 	}
-
-	private byte[] constructOneBlock(int dim) {
-		return constructBlocks(1, dim);
-	}
-
-	private byte[] constructBlocks(int num, int dim) {
-		ByteBuffer bb = ByteBuffer.allocate(4);
-		bb.putInt(dim);
-		int sizeOfOneBlock = (dim * dim * dim + 3) * 4;
-		byte[] data = new byte[sizeOfOneBlock * num];
-		new Random().nextBytes(data);
-		for (int i = 0; i < num; i++) {
-			int offset = sizeOfOneBlock * i;
-			bb.flip();
-			bb.get(data, offset + 0, 4);
-			bb.clear();
-			bb.get(data, offset + 4, 4);
-			bb.clear();
-			bb.get(data, offset + 8, 4);
-		}
-		return data;
-	}
-
 }

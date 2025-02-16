@@ -9,6 +9,7 @@ import bdv.spimdata.XmlIoSpimDataMinimal;
 import cz.it4i.fiji.datastore.ApplicationConfiguration;
 import cz.it4i.fiji.datastore.core.HPCDatastoreImageLoader;
 import mpicbg.spim.data.SpimDataException;
+import org.apache.commons.lang.NotImplementedException;
 import org.eclipse.microprofile.graphql.Description;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Name;
@@ -21,6 +22,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,22 +42,28 @@ public class HPCDatastoreResource {
             new HashMap<>();
 
     @Query("JSONListDatastoreLoader")
-    public String getJSONListDatastoreLoader(@Name(UUID) String uuid, @Context UriInfo uriInfo)
-            throws IOException
-    {
-        return jsonDatasetListHandlerTS.run(uuid, uriInfo.getRequestUri(), true);
+    public DataReturn getJSONListDatastoreLoader(@Name(UUID) String uuid, @Name("uri") String uriString)
+            throws IOException, URISyntaxException {
+        URI uri = new URI(uriString);
+        return new DataReturn(
+                DataReturn.ReturnType.JSON,
+                jsonDatasetListHandlerTS.run(uuid, uri, true)
+        );
     }
 
     @Query("MetadataXML")
-    public String getMetadataXML(@Name(UUID) String uuidStr,
-           @Name(VERSION_PARAM) String versionStr, @Context UriInfo uriInfo)
-    {
+    public DataReturn getMetadataXML(@Name(UUID) String uuidStr,
+           @Name(VERSION_PARAM) String versionStr, @Name("uri") String uriString) throws URISyntaxException {
+        URI uri = new URI(uriString);
         final XmlIoSpimDataMinimal io = new XmlIoSpimDataMinimal();
 
         try (final StringWriter ow = new StringWriter()) {
             SpimDataMinimal spimData = getSpimDataMinimalTS.run(uuidStr, versionStr);
-            BuildRemoteDatasetXmlTS.run(io, spimData, new HPCDatastoreImageLoader(uriInfo.getRequestUri().toString()), ow);
-            return ow.toString();
+            BuildRemoteDatasetXmlTS.run(io, spimData, new HPCDatastoreImageLoader(uri.toString()), ow);
+            return new DataReturn(
+                    DataReturn.ReturnType.XML,
+                    ow.toString()
+            );
         }
         catch (IOException | SpimDataException exc) {
             throw new InternalServerErrorException(exc);
@@ -64,8 +73,14 @@ public class HPCDatastoreResource {
     @Query("Thumbnail")
     @Description("Return a thumbnail in base64 encoding")
     public String getThumbnail(@Name(UUID) String uuid,
-           @Name(VERSION_PARAM) String version, @Context UriInfo uriInfo) throws IOException {
+           @Name(VERSION_PARAM) String version) throws IOException {
         ThumbnailProviderTS ts = getThumbnailProvider(uuid, version, thumbnailsGenerators, getSpimDataMinimalTS);
         return ts.runForThumbnail();
+    }
+
+    @Query
+    public DataReturn getSettingsXML()
+    {
+        throw new NotImplementedException();
     }
 }

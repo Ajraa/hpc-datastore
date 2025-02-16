@@ -6,6 +6,7 @@ import cz.it4i.fiji.datastore.register_service.DatasetRepository;
 import cz.it4i.fiji.datastore.register_service.WriteToVersionListener;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 import static cz.it4i.fiji.datastore.core.Version.stringToIntVersion;
 
-@ApplicationScoped
+@RequestScoped
 public class CellHandlerGQLProducer implements WriteToVersionListener {
     @Inject
     DatasetRepository repository;

@@ -26,7 +26,7 @@ import cz.it4i.fiji.datastore.register_service.DatasetRepository;
 import cz.it4i.fiji.datastore.register_service.WriteToVersionListener;
 
 @ApplicationScoped
-class CellHandlerTSProducer implements WriteToVersionListener {
+public class CellHandlerTSProducer implements WriteToVersionListener {
 
 	@Inject
 	DatasetRepository repository;

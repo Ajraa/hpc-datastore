@@ -1,5 +1,6 @@
 package cz.it4i.fiji.datastore.management;
 
+import cz.it4i.fiji.datastore.bdv_server.DataReturn;
 import cz.it4i.fiji.datastore.security.Authorization;
 import lombok.extern.log4j.Log4j2;
 import org.eclipse.microprofile.graphql.Description;
@@ -17,8 +18,9 @@ public class DataServerManagerResource {
 
     @Mutation("stop")
     @Description("Stops a data server")
-    public void stopDataServer() {
+    public DataReturn stopDataServer() {
         log.debug("Stop was requested as REST request");
         dataServerManager.stopCurrentDataServer();
+        return new DataReturn(DataReturn.ReturnType.SUCCESS, null);
     }
 }
