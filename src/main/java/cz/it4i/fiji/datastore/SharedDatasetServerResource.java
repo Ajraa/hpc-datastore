@@ -20,6 +20,7 @@ import java.util.Base64;
 import java.util.Collections;
 
 import static cz.it4i.fiji.datastore.DatasetServerEndpoint.*;
+import static cz.it4i.fiji.datastore.DatasetServerResource.INPUT_STREAM;
 import static cz.it4i.fiji.datastore.core.Version.stringToIntVersion;
 import static cz.it4i.fiji.datastore.register_service.DatasetRegisterServiceEndpoint.*;
 import static cz.it4i.fiji.datastore.register_service.DatasetRegisterServiceEndpoint.Z_PARAM;
@@ -72,7 +73,7 @@ public class SharedDatasetServerResource implements Serializable {
                                  @Name(Z_PARAM) long z, @Name(TIME_PARAM) int time,
                                  @Name(CHANNEL_PARAM) int channel, @Name(ANGLE_PARAM) int angle,
                                  @Name(BLOCKS_PARAM) String blocks,
-                                 @Name("inputStream") String inputStream) throws IOException {
+                                 @Name(INPUT_STREAM) String inputStream) throws IOException {
         byte[] decodedBytes = Base64.getDecoder().decode(inputStream);
         InputStream stream = new ByteArrayInputStream(decodedBytes);
         return blockRequestHandler.writeBlock(getDataSetserver(uuid, rX, rY, rZ, version), x, y, z, time, channel,

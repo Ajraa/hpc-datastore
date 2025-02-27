@@ -33,6 +33,8 @@ import java.util.Base64;
 @GraphQLApi
 public class DatasetServerResource implements Serializable {
 
+    public static final String INPUT_STREAM = "inputStream";
+
     private static final long serialVersionUID = -3783914337389687663L;
     @Inject
     TimeoutTimer timer;
@@ -92,7 +94,7 @@ public class DatasetServerResource implements Serializable {
                                  @Name(Y_PARAM) long y, @Name(Z_PARAM) long z,
                                  @Name(TIME_PARAM) int time, @Name(CHANNEL_PARAM) int channel,
                                  @Name(ANGLE_PARAM) int angle, @Name(BLOCKS_PARAM) String blocks,
-                                 @Name("inputStream") String inputStream) throws IOException {
+                                 @Name(INPUT_STREAM) String inputStream) throws IOException {
         byte[] decodedBytes = Base64.getDecoder().decode(inputStream);
         InputStream stream = new ByteArrayInputStream(decodedBytes);
         return blockRequestHandler.writeBlock(datasetServer, x, y, z, time, channel,

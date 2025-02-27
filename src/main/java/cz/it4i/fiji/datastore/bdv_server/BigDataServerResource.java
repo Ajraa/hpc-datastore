@@ -54,7 +54,7 @@ public class BigDataServerResource {
         return ts.runForSettings();
     }
 
-    @Query
+    @Query("BDVThumbnail")
     public DataReturn getThumbnail(@Name(UUID) String uuid,
                                    @Name(VERSION_PARAM) String version) throws IOException {
         CellHandlerGQL ts = cellHandlerTSProducer.produce(uri.getBaseUri(), uuid, version);

@@ -70,12 +70,15 @@ public class HPCDatastoreResource {
         }
     }
 
-    @Query("Thumbnail")
+    @Query("HPCThumbnail")
     @Description("Return a thumbnail in base64 encoding")
-    public String getThumbnail(@Name(UUID) String uuid,
+    public DataReturn getThumbnail(@Name(UUID) String uuid,
            @Name(VERSION_PARAM) String version) throws IOException {
         ThumbnailProviderTS ts = getThumbnailProvider(uuid, version, thumbnailsGenerators, getSpimDataMinimalTS);
-        return ts.runForThumbnail();
+        return new DataReturn(
+                DataReturn.ReturnType.BASE64,
+                ts.runForThumbnail()
+        );
     }
 
     @Query

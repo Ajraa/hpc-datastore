@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static cz.it4i.fiji.datastore.DatasetServerEndpoint.*;
 import static cz.it4i.fiji.datastore.register_service.DatasetRegisterServiceEndpoint.*;
@@ -223,7 +224,7 @@ public class DatasetRegisterServiceResource {
         private int timepoints;
         private int channels;
         private int angles;
-        private double[][] transformations;
+        private List<List<Double>> transformations;
         private String voxelUnit;
         private double[] voxelResolution;
         private QLResolution timepointResolution;
@@ -247,7 +248,17 @@ public class DatasetRegisterServiceResource {
             this.timepoints = datasetDTO.getTimepoints();
             this.channels = datasetDTO.getChannels();
             this.angles = datasetDTO.getAngles();
-            this.transformations = datasetDTO.getTransformations();
+            double[][] originalTransformations = datasetDTO.getTransformations();
+            if (originalTransformations != null) {
+                this.transformations = new ArrayList<>();
+                for (double[] row : originalTransformations) {
+                    this.transformations.add(Arrays.stream(row)
+                            .boxed()  // Convert double to Double
+                            .collect(Collectors.toList())); // Collect to a List<Double>
+                }
+            } else {
+                this.transformations = null;
+            }
             this.voxelUnit = datasetDTO.getVoxelUnit();
             this.voxelResolution = datasetDTO.getVoxelResolution();
             this.timepointResolution = new QLResolution(datasetDTO.getTimepointResolution());
@@ -356,29 +367,31 @@ public class DatasetRegisterServiceResource {
         }
 
         ArrayList<ViewRegistrationDTO> viewRegistrations = new ArrayList<ViewRegistrationDTO>();
-        for (QLDatasetDTO.QLViewRegistrationDTO vdto: dto.viewRegistrations) {
-            viewRegistrations.add(toViewRegistrationDTO(vdto));
-        }
+
+        if (dto.viewRegistrations != null)
+            for (QLDatasetDTO.QLViewRegistrationDTO vdto: dto.viewRegistrations) {
+                viewRegistrations.add(toViewRegistrationDTO(vdto));
+            }
 
         return new DatasetDTO(
                 dto.uuid,
                 dto.voxelType,
-                dto.dimensions != null ? Arrays.copyOf(dto.dimensions, dto.dimensions.length) : null, // Copy array
+                dto.dimensions != null ? Arrays.copyOf(dto.dimensions, dto.dimensions.length) : null,
                 dto.timepoints,
                 dto.channels,
                 dto.angles,
-                dto.transformations != null ? Arrays.copyOf(dto.transformations, dto.transformations.length) : null,  // Copy array
+                convertListOfListsToArray(dto.transformations), // Convert List<List<Double>> to double[][]
                 dto.voxelUnit,
-                dto.voxelResolution != null ? Arrays.copyOf(dto.voxelResolution, dto.voxelResolution.length) : null,  // Copy array
+                dto.voxelResolution != null ? Arrays.copyOf(dto.voxelResolution, dto.voxelResolution.length) : null,
                 dto.timepointResolution.toResolution(),
                 dto.channelResolution.toResolution(),
                 dto.angleResolution.toResolution(),
                 dto.compression,
-                originalResolutionLevels,  // Copy array
-                dto.versions != null ? new ArrayList<>(dto.versions) : null, // Copy List
+                originalResolutionLevels,
+                dto.versions != null ? new ArrayList<>(dto.versions) : null,
                 dto.label,
-                viewRegistrations, // Copy List
-                dto.timepointIds != null ? new ArrayList<>(dto.timepointIds) : null, // Copy List
+                viewRegistrations,
+                dto.timepointIds != null ? new ArrayList<>(dto.timepointIds) : null,
                 dto.datasetType
         );
     }
@@ -397,5 +410,22 @@ public class DatasetRegisterServiceResource {
 
     public ViewTransformDTO toViewTransformDTO(QLDatasetDTO.QLViewTransformDTO dto) {
         return new ViewTransformDTO(dto.name, dto.rowPackedMatrix);
+    }
+
+    private double[][] convertListOfListsToArray(List<List<Double>> listOfLists) {
+        if (listOfLists == null) {
+            return null;
+        }
+
+        double[][] array = new double[listOfLists.size()][];
+        for (int i = 0; i < listOfLists.size(); i++) {
+            List<Double> row = listOfLists.get(i);
+            if (row != null) {  // Handle null rows
+                array[i] = row.stream().mapToDouble(Double::doubleValue).toArray();
+            } else {
+                array[i] = null; // Or handle as needed
+            }
+        }
+        return array;
     }
 }
