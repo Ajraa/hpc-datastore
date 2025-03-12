@@ -36,7 +36,7 @@ public class DatasetRegisterServiceResource {
 
     @Query("StartDataserver")
     @Description("Starts a data server with specified mode")
-    public URI startDataServer(
+    public ConnectionParameters startDataServer(
             @Name(UUID) String uuid, @Name(R_X_PARAM) int rX,
             @Name(R_Y_PARAM) int rY, @Name(R_Z_PARAM) int rZ,
             @Name(VERSION_PARAM) String version, @Name(MODE_PARAM) String modeName,
@@ -48,7 +48,7 @@ public class DatasetRegisterServiceResource {
             throw new Exception("Operation mode " + modeName + " not supported");
 
         try {
-            URI serverURI = datasetRegisterServiceImpl.start(uuid, new int[]{rX, rY,
+            ConnectionParameters serverURI = datasetRegisterServiceImpl.start(uuid, new int[]{rX, rY,
                     rZ}, version, opMode, timeout);
             log.debug("start reading> timeout = {}", timeout);
             return serverURI;
@@ -60,7 +60,7 @@ public class DatasetRegisterServiceResource {
 
     @Query("StartWriteDataserver")
     @Description("Starts a data server for writing dataset")
-    public URI startWriteDataserver(
+    public ConnectionParameters startWriteDataserver(
             @Name(UUID) String uuid, @Name(R_X_PARAM) int rX,
             @Name(R_Y_PARAM) int rY, @Name(R_Z_PARAM) int rZ,
             @Name(RESOLUTION_PARAM) String resolutionString,
@@ -69,7 +69,7 @@ public class DatasetRegisterServiceResource {
         log.info("starting server for writing dataset={}", uuid);
         List<int[]> resolutions = getResolutions(rX, rY, rZ, resolutionString);
         try {
-            URI serverURI = datasetRegisterServiceImpl.start(uuid, resolutions,
+            ConnectionParameters serverURI = datasetRegisterServiceImpl.start(uuid, resolutions,
                     timeout);
             log.debug("start reading> timeout = {}", timeout);
             return serverURI;

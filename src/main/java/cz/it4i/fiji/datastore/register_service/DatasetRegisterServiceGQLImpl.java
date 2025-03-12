@@ -1,6 +1,7 @@
 package cz.it4i.fiji.datastore.register_service;
 
 import cz.it4i.fiji.datastore.bdv_server.CellHandlerGQLProducer;
+import cz.it4i.fiji.datastore.management.DataServerManager;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -12,13 +13,16 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @RequestScoped
-public class DatasetRegisterServiceGQLImpl extends DatasetRegisterServiceImplBase {
+public class DatasetRegisterServiceGQLImpl extends DatasetRegisterServiceImplBase<ConnectionParameters> {
 
     @Inject
     CellHandlerGQLProducer writeToVersionListener;
 
+    @Inject
+    protected DataServerManager dataServerManager;
+
     @Override
-    public URI start(String uuid, int[] r, String version, OperationMode mode,
+    public ConnectionParameters start(String uuid, int[] r, String version, OperationMode mode,
                      Long timeout) throws IOException
     {
 
@@ -37,7 +41,7 @@ public class DatasetRegisterServiceGQLImpl extends DatasetRegisterServiceImplBas
     }
 
     @Override
-    public URI start(String uuid, List<int[]> resolutions, Long timeout)
+    public ConnectionParameters start(String uuid, List<int[]> resolutions, Long timeout)
             throws IOException
     {
         Dataset dataset = getDataset(uuid);

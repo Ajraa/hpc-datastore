@@ -210,6 +210,11 @@
             <artifactId>quarkus-hibernate-orm-panache</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>vsb.sal0156</groupId>
+            <artifactId>hpc-datastore-graphql-client</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
         <!-- https://mvnrepository.com/artifact/io.quarkus/quarkus-jdbc-h2 -->
         <dependency>

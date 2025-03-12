@@ -19,7 +19,7 @@ import cz.it4i.fiji.datastore.bdv_server.CellHandlerTSProducer;
 
 
 @RequestScoped
-public class DatasetRegisterServiceTSImpl extends DatasetRegisterServiceImplBase {
+public class DatasetRegisterServiceTSImpl extends DatasetRegisterServiceImplBase<URI> {
 
 	@Inject
 	CellHandlerTSProducer writeToVersionListener;
@@ -40,7 +40,7 @@ public class DatasetRegisterServiceTSImpl extends DatasetRegisterServiceImplBase
 			writeToVersionListener.writingToVersion(uuid, resolvedVersion);
 		}
 		return dataServerManager.startDataServer(dataset.getUuid(), r,
-			resolvedVersion, version.equals("mixedLatest"), mode, timeout);
+			resolvedVersion, version.equals("mixedLatest"), mode, timeout).getUri();
 	}
 
 	@Override
@@ -53,8 +53,7 @@ public class DatasetRegisterServiceTSImpl extends DatasetRegisterServiceImplBase
 		mergeVersions(dataset);
 		writeToVersionListener.writeToAllVersions(uuid);
 		return dataServerManager.startDataServer(dataset.getUuid(), resolutions,
-			timeout);
-
+			timeout).getUri();
 	}
 
 	/*private void checkeResolutions(List<ResolutionLevel> levels) {

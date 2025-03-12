@@ -12,14 +12,15 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import cz.it4i.fiji.datastore.register_service.ConnectionParameters;
 import cz.it4i.fiji.datastore.register_service.OperationMode;
 
 public interface DataServerManager {
 
-	URI startDataServer(String uuid, int[] r, int version, boolean mixedVersions,
-		OperationMode mode, Long timeout) throws IOException;
+	ConnectionParameters startDataServer(String uuid, int[] r, int version, boolean mixedVersions,
+										 OperationMode mode, Long timeout) throws IOException;
 
-	URI startDataServer(String uuid, List<int[]> resolutions, Long timeout)
+	ConnectionParameters startDataServer(String uuid, List<int[]> resolutions, Long timeout)
 		throws IOException;
 
 

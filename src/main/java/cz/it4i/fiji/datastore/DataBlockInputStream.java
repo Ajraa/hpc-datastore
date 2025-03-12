@@ -67,4 +67,43 @@ class DataBlockInputStream extends InputStream {
 		return result;
 	}
 
+	/**
+	 * Reads all available bytes from this stream and returns them as a byte array.
+	 *
+	 * @return A byte array containing all data from the stream
+	 * @throws IOException If an I/O error occurs
+	 */
+	public byte[] toByteArray() throws IOException {
+		// First, calculate the total size needed
+		int totalSize = 0;
+		for (ByteBuffer buffer : collection) {
+			totalSize += buffer.remaining();
+		}
+
+		// Create a byte array of the required size
+		byte[] result = new byte[totalSize];
+
+		// Reset stream's state
+		innerIterator = null;
+		innerByteBuffer = null;
+
+		// Fill the array
+		int position = 0;
+		while (true) {
+			int value = read();
+			if (value == -1) {
+				break;
+			}
+			result[position++] = (byte) value;
+		}
+
+		// If the stream read fewer bytes than expected
+		if (position < totalSize) {
+			byte[] trimmedResult = new byte[position];
+			System.arraycopy(result, 0, trimmedResult, 0, position);
+			return trimmedResult;
+		}
+
+		return result;
+	}
 }

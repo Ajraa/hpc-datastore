@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import javax.transaction.*;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,7 +32,7 @@ import java.util.stream.Collectors;
 import static net.imglib2.cache.img.ReadOnlyCachedCellImgOptions.options;
 
 @Log4j2
-public abstract class DatasetRegisterServiceImplBase {
+public abstract class DatasetRegisterServiceImplBase<T> {
 
     public static final int[] IDENTITY_RESOLUTION = new int[] { 1, 1, 1 };
 
@@ -51,9 +50,9 @@ public abstract class DatasetRegisterServiceImplBase {
 
     protected Map<String, Compression> name2compression = null;
 
-    public abstract URI start(String uuid, List<int[]> resolutions, Long timeout) throws IOException;
+    public abstract T start(String uuid, List<int[]> resolutions, Long timeout) throws IOException;
 
-    public abstract URI start(String uuid, int[] r, String version, OperationMode mode, Long timeout) throws IOException;
+    public abstract T start(String uuid, int[] r, String version, OperationMode mode, Long timeout) throws IOException;
 
     public void addExistingDataset(String uuid) throws IOException,
             SpimDataException, SystemException, NotSupportedException

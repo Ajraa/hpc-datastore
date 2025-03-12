@@ -11,6 +11,7 @@ import static cz.it4i.fiji.datastore.DatasetHandler.INITIAL_VERSION;
 import static cz.it4i.fiji.datastore.register_service.OperationMode.WRITE_TO_OTHER_RESOLUTIONS;
 import static java.util.Optional.ofNullable;
 
+import cz.it4i.fiji.datastore.register_service.ConnectionParameters;
 import io.quarkus.runtime.Quarkus;
 
 import java.io.IOException;
@@ -86,26 +87,27 @@ class DataServerManagerImpl implements DataServerManager {
 	AvailablePortFinder portFinder;
 
 	@Override
-	public URI startDataServer(String uuid, int[] r, int version,
-		boolean mixedVersions, OperationMode mode, Long timeout) throws IOException
+	public ConnectionParameters startDataServer(String uuid, int[] r, int version,
+												boolean mixedVersions, OperationMode mode, Long timeout) throws IOException
 	{
 		if (isStartDedicatedServerEnabled()) {
 			return startDataServer(uuid, Arrays.asList(r), version, mixedVersions,
 				mode, timeout);
 		}
 		try {
-			return new URI("datasets/" + uuid + "/" + r[0] + "/" + r[1] + "/" + r[2] +
+			URI uri = new URI("datasets/" + uuid + "/" + r[0] + "/" + r[1] + "/" + r[2] +
 				"/" + (mixedVersions ? Version.MIXED_LATEST_VERSION_NAME : version) +
 				"/");
+			return new ConnectionParameters(uri, uuid, r[0], r[1], r[2], (mixedVersions ? Version.MIXED_LATEST_VERSION_NAME : Integer.toString(version)));
 		}
-		catch (URISyntaxException exc) {
+		catch (Exception exc) {
 			log.error("startDataserver ", exc);
 			return null;
 		}
 	}
 
 	@Override
-	public URI startDataServer(String uuid, List<int[]> resolutions, Long timeout)
+	public ConnectionParameters startDataServer(String uuid, List<int[]> resolutions, Long timeout)
 		throws IOException
 	{
 		return startDataServer(uuid, resolutions, INITIAL_VERSION, false,
@@ -215,7 +217,7 @@ class DataServerManagerImpl implements DataServerManager {
 
 
 
-	private URI startDataServer(String uuid, List<int[]> resolutions, int version,
+	private ConnectionParameters startDataServer(String uuid, List<int[]> resolutions, int version,
 		boolean mixedVersion, OperationMode mode, Long timeout) throws IOException
 	{
 		int port = portFinder.findAvailablePort(getHostName());
@@ -273,7 +275,9 @@ class DataServerManagerImpl implements DataServerManager {
 			}
 		}
 		try {
-			return new URL(result).toURI();
+			ConnectionParameters params = new ConnectionParameters();
+			params.setUri(new URL(result).toURI());
+			return params;
 		}
 		catch (MalformedURLException | URISyntaxException exc) {
 			throw new InternalServerErrorException(exc);
