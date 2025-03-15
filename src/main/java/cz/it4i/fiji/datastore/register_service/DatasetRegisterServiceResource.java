@@ -17,7 +17,6 @@ import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -171,7 +170,7 @@ public class DatasetRegisterServiceResource {
 
     @Mutation("AddChannels")
     @Description("Add channels to dataset")
-    public DataReturn addChannels(@Name(UUID) String uuid, @Name("channels") String strChannels) {
+    public DataReturn addChannels(@Name(UUID) String uuid, @Name(CHANNEL_PARAM) String strChannels) {
         try {
             int channels = strChannels.isEmpty() ? 1 : Integer.parseInt(strChannels);
             log.info("add channels {} for dataset={}", channels, uuid);
@@ -390,7 +389,7 @@ public class DatasetRegisterServiceResource {
                 originalResolutionLevels,
                 dto.versions != null ? new ArrayList<>(dto.versions) : null,
                 dto.label,
-                viewRegistrations,
+                viewRegistrations.isEmpty() ? null : viewRegistrations,
                 dto.timepointIds != null ? new ArrayList<>(dto.timepointIds) : null,
                 dto.datasetType
         );

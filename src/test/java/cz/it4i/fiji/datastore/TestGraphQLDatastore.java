@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 @Log4j2
@@ -47,20 +48,19 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
         uuid = id.toString();
     }
 
-    //@Test
+    @Test
     @Override
     public void writeReadOneBlock() throws IOException, GraphQLException {
         GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
         DataServerManagerService dataServerManager = new DataServerManagerService(client);
 
         ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "new", TIMEOUT, "write");
-        byte[] data = constructBlocks(2, 64);
+        byte[] data = constructOneBlock(64);
         String stringData = Base64.getEncoder().encodeToString(data);
 
         SharedDatasetServerService serverService = new SharedDatasetServerService(client, params);
         DataReturn ret = serverService.writeBlock(0, 0, 0, 0, 0, 0, "", stringData);
         log.info(ret.getReturnType().toString());
-        dataServerManager.stop();
 
         params = registerService.startServer(uuid, 1, 1, 1, "latest", TIMEOUT, "read");
 
@@ -73,20 +73,65 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
         //assertEquals(stringData, read.getData(), "Result was different");
         byte[] outputData = Base64.getDecoder().decode(read.getData());
         assertArrayEquals(data, outputData);
-        dataServerManager.stop();
     }
 
+    @Test
     @Override
-    public void writeReadTwoBlocks() {
+    public void writeReadTwoBlocks() throws IOException, GraphQLException {
+        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
+        DataServerManagerService dataServerManager = new DataServerManagerService(client);
+        ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "new", TIMEOUT, "write");
 
+        byte[] data = constructBlocks(2, 64);
+        String stringData = Base64.getEncoder().encodeToString(data);
+
+        SharedDatasetServerService serverService = new SharedDatasetServerService(client, params);
+        DataReturn ret = serverService.writeBlock(0, 0, 0, 0, 0, 0, "/0/1/0/0/0/0", stringData);
+
+        params = registerService.startServer(uuid, 1, 1, 1, "latest", TIMEOUT, "read");
+
+        serverService = new SharedDatasetServerService(client, params);
+        DataReturn read = serverService.readBlock(0, 0, 0, 0, 0, 0, "/0/1/0/0/0/0");
+        byte[] outputData = Base64.getDecoder().decode(read.getData());
+        assertArrayEquals(data, outputData);
     }
 
+    @Test
     @Override
-    public void mixedLatest() {
+    public void mixedLatest() throws IOException, GraphQLException {
+        byte[] block1 = constructBlocks(1, 64);
+        String stringData1 = Base64.getEncoder().encodeToString(block1);
 
+        byte[] block2 = constructBlocks(1, 64);
+        String stringData2 = Base64.getEncoder().encodeToString(block2);
+
+        byte[] sentData = new byte[block1.length + block2.length];
+        System.arraycopy(block1, 0, sentData, 0, block1.length);
+        System.arraycopy(block2, 0, sentData, block1.length, block2.length);
+
+        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
+        DataServerManagerService dataServerManager = new DataServerManagerService(client);
+
+        ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "new", TIMEOUT, "write");
+        SharedDatasetServerService serverService = new SharedDatasetServerService(client, params);
+
+        DataReturn ret = serverService.writeBlock(0, 0, 0, 0, 0, 0, "", stringData1);
+
+        params = registerService.startServer(uuid, 1, 1, 1, "new", TIMEOUT, "write");
+        serverService = new SharedDatasetServerService(client, params);
+
+        ret = serverService.writeBlock(0, 1, 0, 0, 0, 0, "", stringData2);
+
+        params = registerService.startServer(uuid, 1, 1, 1, "mixedLatest", TIMEOUT, "read");
+
+        serverService = new SharedDatasetServerService(client, params);
+        DataReturn read = serverService.readBlock(0, 0, 0, 0, 0, 0, "/0/1/0/0/0/0");
+
+        byte[] outputData = Base64.getDecoder().decode(read.getData());
+        assertArrayEquals(sentData, outputData);
     }
 
-    //@Test
+    @Test
     @Override
     public void setGetMetadata() throws IOException, GraphQLException {
         String testMetadata = "test metadata" + Math.random();
@@ -96,19 +141,69 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
         assertEquals(testMetadata, readMetadata);
     }
 
+    @Test
     @Override
-    public void readNonExistingBlock() {
+    public void readNonExistingBlock() throws IOException, GraphQLException {
+        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
+        DataServerManagerService dataServerManager = new DataServerManagerService(client);
 
+        ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "latest", TIMEOUT, "read");
+
+        SharedDatasetServerService serverService = new SharedDatasetServerService(client, params);
+        DataReturn read = serverService.readBlock(10, 10, 10, 0, 0, 0, "");
+        byte[] outputData = Base64.getDecoder().decode(read.getData());
+
+
+        ByteBuffer bb = ByteBuffer.allocate(12);
+        bb.putInt(-1);
+        bb.putInt(-1);
+        bb.putInt(-1);
+        byte[] data = bb.array();
+        assertArrayEquals(data, outputData);
     }
 
+    @Test
     @Override
-    public void readE_NE_E_Block() {
+    public void readE_NE_E_Block() throws IOException, GraphQLException {
+        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
 
+        byte[] data = constructBlocks(2, 64);
+        String dataString = Base64.getEncoder().encodeToString(data);
+
+        ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "new", TIMEOUT, "write");
+        SharedDatasetServerService serverService = new SharedDatasetServerService(client, params);
+
+        DataReturn ret = serverService.writeBlock(0, 0, 0, 0, 0, 0, "/0/1/0/0/0/0", dataString);
+
+
+        params = registerService.startServer(uuid, 1, 1, 1, "latest", TIMEOUT, "read");
+
+        serverService = new SharedDatasetServerService(client, params);
+        DataReturn read = serverService.readBlock(0, 0, 0, 0, 0, 0, "/10/10/10/0/0/0/0/1/0/0/0/0");
+        byte[] outputData = Base64.getDecoder().decode(read.getData());
+
+        ByteBuffer bb = ByteBuffer.allocate(12);
+        bb.putInt(-1);
+        bb.putInt(-1);
+        bb.putInt(-1);
+        byte[] nonExistingData = bb.array();
+        bb = ByteBuffer.allocate(data.length + nonExistingData.length);
+        bb.put(data, 0, data.length / 2);
+        bb.put(nonExistingData);
+        bb.put(data, data.length / 2, data.length / 2);
+        data = bb.array();
+        assertArrayEquals(data, outputData);
     }
 
+    @Test
     @Override
-    public void addChannels() {
+    public void addChannels() throws IOException, GraphQLException {
+        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
 
+        for (int i = 0; i < 2; i++) {
+            ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "new", TIMEOUT, "write");
+        }
+        registerService.addChannels(uuid, "10");
     }
 
     private models.QLDatasetDTO getDatasetDTO() {

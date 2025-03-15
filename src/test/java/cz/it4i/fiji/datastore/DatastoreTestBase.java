@@ -25,12 +25,12 @@ public abstract class DatastoreTestBase {
     }
 
     public abstract void writeReadOneBlock() throws IOException, GraphQLException;
-    public abstract void writeReadTwoBlocks();
-    public abstract void mixedLatest();
+    public abstract void writeReadTwoBlocks() throws IOException, GraphQLException;
+    public abstract void mixedLatest() throws IOException, GraphQLException;
     public abstract void setGetMetadata() throws IOException, GraphQLException;
-    public abstract void readNonExistingBlock();
-    public abstract void readE_NE_E_Block();
-    public abstract void addChannels();
+    public abstract void readNonExistingBlock() throws IOException, GraphQLException;
+    public abstract void readE_NE_E_Block() throws IOException, GraphQLException;
+    public abstract void addChannels() throws IOException, GraphQLException;
 
     protected byte[] constructOneBlock(int dim) {
         return constructBlocks(1, dim);
@@ -52,10 +52,5 @@ public abstract class DatastoreTestBase {
             bb.get(data, offset + 8, 4);
         }
         return data;
-    }
-
-    protected RequestSpecification withNoFollowRedirects() {
-        return with().config(RestAssuredConfig.config().redirect(RedirectConfig
-                .redirectConfig().followRedirects(false)));
     }
 }
