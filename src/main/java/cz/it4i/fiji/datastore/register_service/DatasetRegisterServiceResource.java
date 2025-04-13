@@ -5,6 +5,8 @@ import cz.it4i.fiji.datastore.core.DatasetDTO;
 import cz.it4i.fiji.datastore.core.ViewRegistrationDTO;
 import cz.it4i.fiji.datastore.core.ViewTransformDTO;
 import cz.it4i.fiji.datastore.security.Authorization;
+import io.smallrye.graphql.api.AdaptToScalar;
+import io.smallrye.graphql.api.Scalar;
 import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import mpicbg.spim.data.SpimDataException;
@@ -17,6 +19,8 @@ import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -115,7 +119,8 @@ public class DatasetRegisterServiceResource {
         log.info("get JSON for dataset={}", uuid);
         try {
             return new QLDatasetDTO(datasetRegisterServiceImpl.query(uuid));
-        } catch (SpimDataException exc) {
+        } catch (Exception exc) {
+            log.error("query dataset", exc);
             throw new InternalServerErrorException("Query to dataset failed", exc);
         }
     }
@@ -219,13 +224,13 @@ public class DatasetRegisterServiceResource {
     public static class QLDatasetDTO {
         private String uuid;
         private String voxelType;
-        private long[] dimensions;
+        private BigInteger[] dimensions;
         private int timepoints;
         private int channels;
         private int angles;
         private List<List<Double>> transformations;
         private String voxelUnit;
-        private double[] voxelResolution;
+        private BigDecimal[] voxelResolution;
         private QLResolution timepointResolution;
         private QLResolution channelResolution;
         private QLResolution angleResolution;
@@ -243,7 +248,9 @@ public class DatasetRegisterServiceResource {
             }
             this.uuid = datasetDTO.getUuid(); // Or datasetDTO.uuid if it's public
             this.voxelType = datasetDTO.getVoxelType();
-            this.dimensions = datasetDTO.getDimensions();
+            this.dimensions = Arrays.stream(datasetDTO.getDimensions())
+                    .mapToObj(BigInteger::valueOf)
+                    .toArray(BigInteger[]::new);
             this.timepoints = datasetDTO.getTimepoints();
             this.channels = datasetDTO.getChannels();
             this.angles = datasetDTO.getAngles();
@@ -259,7 +266,9 @@ public class DatasetRegisterServiceResource {
                 this.transformations = null;
             }
             this.voxelUnit = datasetDTO.getVoxelUnit();
-            this.voxelResolution = datasetDTO.getVoxelResolution();
+            this.voxelResolution = Arrays.stream(datasetDTO.getVoxelResolution())
+                    .mapToObj(BigDecimal::valueOf)
+                    .toArray(BigDecimal[]::new);
             this.timepointResolution = new QLResolution(datasetDTO.getTimepointResolution());
             this.channelResolution = new QLResolution(datasetDTO.getChannelResolution());
             this.angleResolution = new QLResolution(datasetDTO.getAngleResolution());
@@ -275,9 +284,10 @@ public class DatasetRegisterServiceResource {
             }            this.versions = datasetDTO.getVersions();
             this.label = datasetDTO.getLabel();
             this.viewRegistrations = new ArrayList<QLViewRegistrationDTO>();
-            for (ViewRegistrationDTO vdto: datasetDTO.getViewRegistrations()) {
-                this.viewRegistrations.add(new QLViewRegistrationDTO(vdto));
-            }
+            if (datasetDTO.getViewRegistrations() != null)
+                for (ViewRegistrationDTO vdto: datasetDTO.getViewRegistrations()) {
+                    this.viewRegistrations.add(new QLViewRegistrationDTO(vdto));
+                }
             this.timepointIds = datasetDTO.getTimepointIds();
             this.datasetType = datasetDTO.getDatasetType();
         }
@@ -375,13 +385,19 @@ public class DatasetRegisterServiceResource {
         return new DatasetDTO(
                 dto.uuid,
                 dto.voxelType,
-                dto.dimensions != null ? Arrays.copyOf(dto.dimensions, dto.dimensions.length) : null,
+                dto.dimensions != null
+                        ? Arrays.stream(dto.dimensions)
+                        .mapToLong(BigInteger::longValue)
+                        .toArray()
+                        : null,
                 dto.timepoints,
                 dto.channels,
                 dto.angles,
                 convertListOfListsToArray(dto.transformations), // Convert List<List<Double>> to double[][]
                 dto.voxelUnit,
-                dto.voxelResolution != null ? Arrays.copyOf(dto.voxelResolution, dto.voxelResolution.length) : null,
+                dto.voxelResolution != null ? Arrays.stream(dto.voxelResolution)
+                                .mapToDouble(BigDecimal::doubleValue)
+                                        .toArray() : null,
                 dto.timepointResolution.toResolution(),
                 dto.channelResolution.toResolution(),
                 dto.angleResolution.toResolution(),
