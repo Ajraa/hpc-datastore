@@ -65,7 +65,7 @@ public class BlockRequestHandler extends BaseBlockRequestHandler<Response> {
 					.build();
 			}
 		}
-		catch (IOException | NullPointerException exc) {
+		catch (Exception exc) {
 			log.warn("read", exc);
 			return Response.serverError().entity(exc.getMessage()).type(
 				MediaType.TEXT_PLAIN).build();

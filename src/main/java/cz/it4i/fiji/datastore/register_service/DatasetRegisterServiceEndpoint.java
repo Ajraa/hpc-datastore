@@ -116,7 +116,7 @@ public class DatasetRegisterServiceEndpoint {
 			log.debug("start reading> timeout = {}", timeout);
 			return Response.temporaryRedirect(serverURI).build();
 		}
-		catch (IOException exc) {
+		catch (Exception exc) {
 			log.error("Starting server", exc);
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(
 				"Starting throws exception").build();
