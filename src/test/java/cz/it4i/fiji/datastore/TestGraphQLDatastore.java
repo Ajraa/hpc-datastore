@@ -36,7 +36,7 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
 
     @BeforeAll
     public void initialize() {
-        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
+        GraphQLClient client = GraphQLClient.getInstance(getUrl());
         registerService = new RegisterService(client);
     }
 
@@ -51,7 +51,7 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
     @Test
     @Override
     public void writeReadOneBlock() throws IOException, GraphQLException {
-        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
+        GraphQLClient client = GraphQLClient.getInstance(getUrl());
         DataServerManagerService dataServerManager = new DataServerManagerService(client);
 
         ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "new", TIMEOUT, "write");
@@ -78,7 +78,7 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
     @Test
     @Override
     public void writeReadTwoBlocks() throws IOException, GraphQLException {
-        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
+        GraphQLClient client = GraphQLClient.getInstance(getUrl());
         DataServerManagerService dataServerManager = new DataServerManagerService(client);
         ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "new", TIMEOUT, "write");
 
@@ -109,7 +109,7 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
         System.arraycopy(block1, 0, sentData, 0, block1.length);
         System.arraycopy(block2, 0, sentData, block1.length, block2.length);
 
-        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
+        GraphQLClient client = GraphQLClient.getInstance(getUrl());
         DataServerManagerService dataServerManager = new DataServerManagerService(client);
 
         ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "new", TIMEOUT, "write");
@@ -144,7 +144,7 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
     @Test
     @Override
     public void readNonExistingBlock() throws IOException, GraphQLException {
-        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
+        GraphQLClient client = GraphQLClient.getInstance(getUrl());
         DataServerManagerService dataServerManager = new DataServerManagerService(client);
 
         ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "latest", TIMEOUT, "read");
@@ -165,7 +165,7 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
     @Test
     @Override
     public void readE_NE_E_Block() throws IOException, GraphQLException {
-        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
+        GraphQLClient client = GraphQLClient.getInstance(getUrl());
 
         byte[] data = constructBlocks(2, 64);
         String dataString = Base64.getEncoder().encodeToString(data);
@@ -198,7 +198,7 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
     @Test
     @Override
     public void addChannels() throws IOException, GraphQLException {
-        GraphQLClient client = GraphQLClient.getInstance("http://localhost:9080/graphql");
+        GraphQLClient client = GraphQLClient.getInstance(getUrl());
 
         for (int i = 0; i < 2; i++) {
             ConnectionParameters params = registerService.startServer(uuid, 1, 1, 1, "new", TIMEOUT, "write");
@@ -239,5 +239,11 @@ public class TestGraphQLDatastore extends DatastoreTestBase {
 
         ret.setResolutionLevels(resolutionLevels);
         return ret;
+    }
+
+    private String getUrl() {
+        String host = System.getProperty("test-host", "localhost"); // Default to "localhost" if not set
+        String port = System.getProperty("test-port", "9080"); // Default to "9080" if not set
+        return new StringBuilder().append("http://").append(host).append(":").append(port).append("/graphql").toString();
     }
 }

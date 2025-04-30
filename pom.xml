@@ -59,6 +59,9 @@
         <system>none</system>
     </ciManagement>
     <properties>
+        <test-host>localhost</test-host>
+        <test-port>9080</test-port>
+
         <package-name>HPCDataStore</package-name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
@@ -203,7 +206,6 @@
             <artifactId>quarkus-hibernate-orm</artifactId>
         </dependency>
 
-
         <!-- Hibernate ORM specific dependencies -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -318,10 +320,10 @@
                 <version>2.22.2</version>
                 <configuration>
                     <systemPropertyVariables>
-                        <quarkus.http.test-host>localhost</quarkus.http.test-host>
-                        <quarkus.http.test-port>9080</quarkus.http.test-port>
-                        <quarkus.datasource.jdbc.url>jdbc:h2:/temp/DataStore_DataRoot/h2;MODE=PostgreSQL;INIT=CREATE SCHEMA IF NOT EXISTS datastore</quarkus.datasource.jdbc.url>
-                        <datastore.path>/temp/DataStore_DataRoot</datastore.path>
+                        <quarkus.http.test-host>${test-host}</quarkus.http.test-host>
+                        <quarkus.http.test-port>${test-port}</quarkus.http.test-port>
+                        <quarkus.datasource.jdbc.url>jdbc:h2:/tmp/DataStore_DataRoot/h2;MODE=PostgreSQL;INIT=CREATE SCHEMA IF NOT EXISTS datastore</quarkus.datasource.jdbc.url>
+                        <datastore.path>/tmp/DataStore_DataRoot</datastore.path>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
